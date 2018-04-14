@@ -1,4 +1,4 @@
-# l5424 wrapper
+# l5424 dynamic-wrapper
 
 A semi-dynamic wrapper for the l5424 log interface.
 
