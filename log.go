@@ -1,13 +1,23 @@
 package l5424
 
-// 0       Emergency: system is unusable
-// 1       Alert: action must be taken immediately
-// 2       Critical: critical conditions
-// 3       Error: error conditions
-// 4       Warning: warning conditions
-// 5       Notice: normal but significant condition
-// 6       Informational: informational messages
-// 7       Debug: debug-level messages
+const (
+	// EmergencyLvl system is unusable
+	EmergencyLvl = iota
+	// AlertLvl action must be taken immediately
+	AlertLvl
+	// CritLvl critical conditions
+	CritLvl
+	// ErrorLvl error conditions
+	ErrorLvl
+	// WarnLvl warning conditions
+	WarnLvl
+	// NoticeLvl normal but signifcant condition
+	NoticeLvl
+	// InfoLvl informational messages
+	InfoLvl
+	// DebugLvl debug-level messages
+	DebugLvl
+)
 
 type (
 	// Log is an rfc5424 log interface.
