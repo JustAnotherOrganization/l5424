@@ -1,4 +1,4 @@
-package l5424
+package l5424 // import "github.com/JustAnotherOrganization/l5424"
 
 const (
 	// EmergencyLvl system is unusable

@@ -6,4 +6,4 @@
 // l5424 doesn't include any dependencies and is small enough that if you intend on writing your
 // own logger (instead of using the provided wrapper) you can simply copy/paste the main interface
 // into your project.
-package l5424
+package l5424 // import "github.com/JustAnotherOrganization/l5424"
