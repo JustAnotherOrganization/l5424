@@ -1,4 +1,4 @@
-package logger
+package x5424
 
 import (
 	"fmt"
@@ -17,6 +17,7 @@ const (
 )
 
 var (
+	// TODO: allow for overriding the default formats.
 	logFormat       = DefaultFormat
 	emergencyFormat = fmt.Sprintf(logFormat, `Emergency`, `%s`)
 	alertFormat     = fmt.Sprintf(logFormat, `Alert`, `%s`)

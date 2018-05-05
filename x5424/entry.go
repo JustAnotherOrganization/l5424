@@ -1,4 +1,4 @@
-package logger
+package x5424
 
 import (
 	"fmt"
@@ -15,6 +15,7 @@ const (
 )
 
 var (
+	// TODO: allow for overriding the default formats.
 	entryFormat          = DefaultEntryFormat
 	emergencyEntryFormat = fmt.Sprintf(entryFormat, `%s`, `Emergency`, `%s`)
 	alertEntryFormat     = fmt.Sprintf(entryFormat, `%s`, `Alert`, `%s`)
@@ -27,7 +28,8 @@ var (
 )
 
 type (
-	// Entry provides facility value access to Logger.
+	// Entry provides facility value access to Logger. This is a separate type to
+	// better support having the zero value facility level as l5424.FacilityKernel.
 	Entry struct {
 		l *Logger
 
