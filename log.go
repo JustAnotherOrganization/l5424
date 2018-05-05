@@ -1,8 +1,70 @@
 package l5424 // import "github.com/JustAnotherOrganization/l5424"
 
+type (
+	// FacilityLvl values are not normative however are defined in the RFC. They are provided for convenience.
+	FacilityLvl uint
+	// SeverityLvl values are not normative however are defined in the RFC. They are provided for convenience.
+	SeverityLvl uint
+)
+
+const (
+	// FacilityKernel should be used for messages originating from the kernel.
+	FacilityKernel FacilityLvl = iota
+	// FacilityUser should be used for messages originating at the user level.
+	FacilityUser
+	// FacilityMail should be used for messages originating at a mail system.
+	FacilityMail
+	// FacilitySystemD should be used for messages originating from within a system daemon.
+	FacilitySystemD
+	// FacilitySecurity should be used for messages related to security or authorization.
+	FacilitySecurity
+	// FacilitySyslogD should be used for messages originating from syslogd.
+	FacilitySyslogD
+	// FacilityPrinter should be used for messages originating from a printer system.
+	FacilityPrinter
+	// FacilityNews should be used for messages originating from a network news system.
+	FacilityNews
+	// FacilityUUCP should be used for messages originating from a UUCP system.
+	FacilityUUCP
+	// FacilityClock should be used for messages originating from a clock daemon.
+	FacilityClock
+	// FacilityAuthorization should be used for messages related to security or authotization.
+	// The RFC makes little distinction between FacilityAuthorization and FacilitySecurity, the
+	// difference here is in name only.
+	FacilityAuthorization
+	// FacilityFTP should be used for messages originating from a FTP daemon.
+	FacilityFTP
+	// FacilityNTP should be used for messages originating from a NTP daemon.
+	FacilityNTP
+	// FacilityAudit should be used for informational messages.
+	FacilityAudit
+	// FacilityAlert should be used for alert messages.
+	FacilityAlert
+	// FacilityClockD should be used for messages originating from a clock daemon.
+	// The RFC makes little distinction between FacilityClockD and FacilityClockD, the
+	// difference here is in name only.
+	FacilityClockD
+	// FacilityLocal0 should be used for messages originating from a local system.
+	FacilityLocal0
+	// FacilityLocal1 should be used for messages originating from a local system.
+	FacilityLocal1
+	// FacilityLocal2 should be used for messages originating from a local system.
+	FacilityLocal2
+	// FacilityLocal3 should be used for messages originating from a local system.
+	FacilityLocal3
+	// FacilityLocal4 should be used for messages originating from a local system.
+	FacilityLocal4
+	// FacilityLocal5 should be used for messages originating from a local system.
+	FacilityLocal5
+	// FacilityLocal6 should be used for messages originating from a local system.
+	FacilityLocal6
+	// FacilityLocal7 should be used for messages originating from a local system.
+	FacilityLocal7
+)
+
 const (
 	// EmergencyLvl system is unusable
-	EmergencyLvl = iota
+	EmergencyLvl SeverityLvl = iota
 	// AlertLvl action must be taken immediately
 	AlertLvl
 	// CritLvl critical conditions
@@ -20,7 +82,7 @@ const (
 )
 
 type (
-	// Log is an rfc5424 log interface.
+	// Log is a RFC5424 log interface.
 	Log interface {
 		// Emergency writes an emergency value to the logger.
 		Emergency(v ...interface{})
@@ -46,12 +108,12 @@ type (
 		Errorln(v ...interface{})
 		// Errorf writes an error value to the logger using the provided format string.
 		Errorf(format string, v ...interface{})
-		// Warning writes a warning value to the logger.
-		Warning(v ...interface{})
-		// Warningln writes a warning value to the logger followed by a new line.
-		Warningln(v ...interface{})
-		// Warningf writes a warning value to the logger using the provided format string.
-		Warningf(format string, v ...interface{})
+		// Warn writes a warning value to the logger.
+		Warn(v ...interface{})
+		// Warnln writes a warning value to the logger followed by a new line.
+		Warnln(v ...interface{})
+		// Warnf writes a warning value to the logger using the provided format string.
+		Warnf(format string, v ...interface{})
 		// Notice writes a notice value to the logger.
 		Notice(v ...interface{})
 		// Noticeln writes a notice value to the logger followed by a new line.
