@@ -9,7 +9,10 @@ import (
 )
 
 // Static type checking.
-var _ l5424.Log = &Logger{}
+var (
+	_ l5424.Log    = &Logger{}
+	_ l5424.MinLog = &Logger{}
+)
 
 const (
 	// DefaultFormat is the default logger format.
@@ -18,15 +21,7 @@ const (
 
 var (
 	// TODO: allow for overriding the default formats.
-	logFormat       = DefaultFormat
-	emergencyFormat = fmt.Sprintf(logFormat, `Emergency`, `%s`)
-	alertFormat     = fmt.Sprintf(logFormat, `Alert`, `%s`)
-	criticalFormat  = fmt.Sprintf(logFormat, `Critical`, `%s`)
-	errorFormat     = fmt.Sprintf(logFormat, `Error`, `%s`)
-	warnFormat      = fmt.Sprintf(logFormat, `Warning`, `%s`)
-	noticeFormat    = fmt.Sprintf(logFormat, `Notice`, `%s`)
-	infoFormat      = fmt.Sprintf(logFormat, `Info`, `%s`)
-	debugFormat     = fmt.Sprintf(logFormat, `Debug`, `%s`)
+	logFormat = DefaultFormat
 )
 
 type (
@@ -88,164 +83,179 @@ func (l *Logger) write(w io.Writer, v string) {
 	fmt.Fprint(w, v)
 }
 
+// Print writes to the logger using the provided severity level.
+func (l *Logger) Print(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
+	l.write(w, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...)))
+}
+
+// Println writes to the logger using the provided severity level, followed by a new line.
+func (l *Logger) Println(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
+	l.write(w, fmt.Sprintln(fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...))))
+}
+
+// Printf writes to the logger using the provided severity level and format.
+func (l *Logger) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...interface{}) {
+	l.write(w, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprintf(format, v...)))
+}
+
 // Emergency writes an emergency value to the logger.
 func (l *Logger) Emergency(v ...interface{}) {
-	l.write(l.cout, fmt.Sprintf(emergencyFormat, fmt.Sprint(v...)))
+	l.Print(l.cout, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyln writes an emergency value to the logger followed by a new line.
 func (l *Logger) Emergencyln(v ...interface{}) {
-	l.write(l.cout, fmt.Sprintln(fmt.Sprintf(emergencyFormat, fmt.Sprint(v...))))
+	l.Println(l.cout, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyf writes an emergency value to the logger using the provided format string.
 func (l *Logger) Emergencyf(format string, v ...interface{}) {
-	l.write(l.cout, fmt.Sprintf(emergencyFormat, fmt.Sprintf(format, v...)))
+	l.Printf(l.cout, l5424.EmergencyLvl, format, v...)
 }
 
 // Alert writes an alert value to the logger.
 func (l *Logger) Alert(v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.write(l.cout, fmt.Sprintf(alertFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.AlertLvl {
+		l.Print(l.err, l5424.AlertLvl, v...)
 	}
 }
 
 // Alertln writes an alert value to the logger followed by a new line.
 func (l *Logger) Alertln(v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.write(l.cout, fmt.Sprintln(fmt.Sprintf(alertFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.AlertLvl {
+		l.Println(l.err, l5424.AlertLvl, v...)
 	}
 }
 
 // Alertf writes an alert value to the logger using the provided format string.
 func (l *Logger) Alertf(format string, v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.write(l.cout, fmt.Sprintf(alertFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.AlertLvl {
+		l.Printf(l.err, l5424.AlertLvl, format, v...)
 	}
 }
 
 // Critical writes a critical value to the logger.
 func (l *Logger) Critical(v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.write(l.err, fmt.Sprintf(criticalFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.CritLvl {
+		l.Print(l.err, l5424.CritLvl, v...)
 	}
 }
 
 // Criticalln writes a critical value to the logger followed by a new line.
 func (l *Logger) Criticalln(v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.write(l.err, fmt.Sprintln(fmt.Sprintf(criticalFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.CritLvl {
+		l.Println(l.err, l5424.CritLvl, v...)
 	}
 }
 
 // Criticalf write a critical value to the logger using the provided format string.
 func (l *Logger) Criticalf(format string, v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.write(l.err, fmt.Sprintf(criticalFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.CritLvl {
+		l.Printf(l.err, l5424.CritLvl, format, v...)
 	}
 }
 
 // Error writes an error value to the logger.
 func (l *Logger) Error(v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.write(l.err, fmt.Sprintf(errorFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.ErrorLvl {
+		l.Print(l.err, l5424.ErrorLvl, v...)
 	}
 }
 
 // Errorln writes an error value to the logger follower by a new line.
 func (l *Logger) Errorln(v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.write(l.err, fmt.Sprintln(fmt.Sprintf(errorFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.ErrorLvl {
+		l.Println(l.err, l5424.ErrorLvl, v...)
 	}
 }
 
 // Errorf writes an error value to the logger using the provided format string.
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.write(l.err, fmt.Sprintf(errorFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.ErrorLvl {
+		l.Printf(l.err, l5424.ErrorLvl, format, v...)
 	}
 }
 
 // Warn writes a warning value to the logger.
 func (l *Logger) Warn(v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.write(l.err, fmt.Sprintf(warnFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.WarnLvl {
+		l.Print(l.err, l5424.WarnLvl, v...)
 	}
 }
 
 // Warnln writes a warning value to the logger followed by a new line.
 func (l *Logger) Warnln(v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.write(l.err, fmt.Sprintln(fmt.Sprintf(warnFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.WarnLvl {
+		l.Println(l.err, l5424.WarnLvl, v...)
 	}
 }
 
 // Warnf writes a warning value to the logger using the provided format string.
 func (l *Logger) Warnf(format string, v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.write(l.err, fmt.Sprintf(warnFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.WarnLvl {
+		l.Printf(l.err, l5424.WarnLvl, format, v...)
 	}
 }
 
 // Notice writes a notice value to the logger.
 func (l *Logger) Notice(v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.write(l.out, fmt.Sprintf(noticeFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.NoticeLvl {
+		l.Print(l.out, l5424.NoticeLvl, v...)
 	}
 }
 
 // Noticeln writes a notice value to the logger followed by a new line.
 func (l *Logger) Noticeln(v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.write(l.out, fmt.Sprintln(fmt.Sprintf(noticeFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.NoticeLvl {
+		l.Println(l.out, l5424.NoticeLvl, v...)
 	}
 }
 
 // Noticef writes a notice value to the logger using the provided format string.
 func (l *Logger) Noticef(format string, v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.write(l.out, fmt.Sprintf(noticeFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.NoticeLvl {
+		l.Printf(l.out, l5424.NoticeLvl, format, v...)
 	}
 }
 
 // Info writes an info value to the logger.
 func (l *Logger) Info(v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.write(l.out, fmt.Sprintf(infoFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.InfoLvl {
+		l.Print(l.out, l5424.InfoLvl, v...)
 	}
 }
 
 // Infoln writes an info value to the logger followed by a new line.
 func (l *Logger) Infoln(v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.write(l.out, fmt.Sprintln(fmt.Sprintf(infoFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.InfoLvl {
+		l.Println(l.out, l5424.InfoLvl, v...)
 	}
 }
 
 // Infof writes an info value to the logger using the provided format string.
 func (l *Logger) Infof(format string, v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.write(l.out, fmt.Sprintf(infoFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.InfoLvl {
+		l.Printf(l.out, l5424.InfoLvl, format, v...)
 	}
 }
 
 // Debug writes a debug value to the logger.
 func (l *Logger) Debug(v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.write(l.out, fmt.Sprintf(infoFormat, fmt.Sprint(v...)))
+	if l.severity <= l5424.DebugLvl {
+		l.Print(l.out, l5424.DebugLvl, v...)
 	}
 }
 
 // Debugln writes a debug value to the logger followed by a new line.
 func (l *Logger) Debugln(v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.write(l.out, fmt.Sprintln(fmt.Sprintf(infoFormat, fmt.Sprint(v...))))
+	if l.severity <= l5424.DebugLvl {
+		l.Println(l.out, l5424.DebugLvl, v...)
 	}
 }
 
 // Debugf writes a debug value to the logger using the provided format string.
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.write(l.out, fmt.Sprintf(infoFormat, fmt.Sprintf(format, v...)))
+	if l.severity <= l5424.DebugLvl {
+		l.Printf(l.out, l5424.DebugLvl, format, v...)
 	}
 }

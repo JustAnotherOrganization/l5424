@@ -1,4 +1,5 @@
 package l5424 // import "github.com/JustAnotherOrganization/l5424"
+import "io"
 
 type (
 	// FacilityLvl values are not normative however are defined in the RFC. They are provided for convenience.
@@ -132,5 +133,21 @@ type (
 		Debugln(v ...interface{})
 		// Debugf writes a debug value to the logger using the provided format string.
 		Debugf(format string, v ...interface{})
+		// Print writes to the logger using the provided severity level on the provided writer.
+		Print(w io.Writer, lvl SeverityLvl, v ...interface{})
+		// Println writes to the logger using the provided severity level, followed by a new line on the provided writer.
+		Println(w io.Writer, lvl SeverityLvl, v ...interface{})
+		// Printf writes to the logger using the provided severity level and format on the provided writer.
+		Printf(w io.Writer, lvl SeverityLvl, format string, v ...interface{})
+	}
+
+	// MinLog is a minimal RFC5424 log interface.
+	MinLog interface {
+		// Print writes to the logger using the provided severity level on the provided writer.
+		Print(w io.Writer, lvl SeverityLvl, v ...interface{})
+		// Println writes to the logger using the provided severity level, followed by a new line on the provided writer.
+		Println(w io.Writer, lvl SeverityLvl, v ...interface{})
+		// Printf writes to the logger using the provided severity level and format on the provided writer.
+		Printf(w io.Writer, lvl SeverityLvl, format string, v ...interface{})
 	}
 )
