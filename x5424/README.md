@@ -4,7 +4,7 @@
 
 ---
 
-An RFC5424 compliant logger. This is an experimental implementation of the l5424 log interface.
+An RFC5424 compliant logger. This is an example implementation of the l5424 log interface.
 
 x5424 writes to both an out and an err writer (default: os.Stdout and os.Stderr respectively) where values with a severity level of EmergencyLvl  to AlertLvl are written to err only and values of NoticeLvl or above are written to out only.
 
