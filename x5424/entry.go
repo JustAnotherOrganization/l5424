@@ -38,17 +38,17 @@ func (l *Logger) NewEntry(facilityLvl l5424.FacilityLvl) *Entry {
 
 // Print writes to the logger using the provided severity level.
 func (e *Entry) Print(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	e.l.write(w, fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprint(v...)))
+	e.l.write(w, lvl, fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprint(v...)))
 }
 
 // Println writes to the logger using the provided severity level, followed by a new line.
 func (e *Entry) Println(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	e.l.write(w, fmt.Sprintln(fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprint(v...))))
+	e.l.write(w, lvl, fmt.Sprintln(fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprint(v...))))
 }
 
 // Printf writes to the logger using the provided severity level and format.
 func (e *Entry) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...interface{}) {
-	e.l.write(w, fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprintf(format, v...)))
+	e.l.write(w, lvl, fmt.Sprintf(entryFormat, e.facility.String(), lvl.String(), fmt.Sprintf(format, v...)))
 }
 
 // Emergency writes an emergency value to the logger.

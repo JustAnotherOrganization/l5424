@@ -69,23 +69,25 @@ func (l *Logger) SetLevel(lvl l5424.SeverityLvl) {
 	l.severity = lvl
 }
 
-func (l *Logger) write(w io.Writer, v string) {
-	fmt.Fprint(w, v)
+func (l *Logger) write(w io.Writer, lvl l5424.SeverityLvl, v string) {
+	if lvl < l5424.Disabled {
+		fmt.Fprint(w, v)
+	}
 }
 
 // Print writes to the logger using the provided severity level.
 func (l *Logger) Print(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	l.write(w, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...)))
+	l.write(w, lvl, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...)))
 }
 
 // Println writes to the logger using the provided severity level, followed by a new line.
 func (l *Logger) Println(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	l.write(w, fmt.Sprintln(fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...))))
+	l.write(w, lvl, fmt.Sprintln(fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...))))
 }
 
 // Printf writes to the logger using the provided severity level and format.
 func (l *Logger) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...interface{}) {
-	l.write(w, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprintf(format, v...)))
+	l.write(w, lvl, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprintf(format, v...)))
 }
 
 // Emergency writes an emergency value to the logger.
