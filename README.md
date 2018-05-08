@@ -4,14 +4,17 @@
 
 ---
 
-An RFC5424 log interface. It does not provide a logger directly, only the leveled interface.
+l5424 is a collection of RFC5424 compliant logging interfaces and loggers.
 
-This can be used to build RCF5424 compliant logging solutions into an application which are
-unaware of their background logger.
+The point of this repo is to show several possible ways of implementing RFC5424 compliant loggers.
 
-l5424 doesn't include any dependencies and is small enough that if you intend on writing your
-own logger (instead of using the provided wrapper) you can simply copy/paste the main interface
-into your project.
+---
+
+The Go Language is extremely fragmented in how it addresses logging. The goal of this project is to
+try to start discussion regarding some form of standardized logging in Go.
+
+If you're reading this you are encouraged to play with the interfaces and loggers as well as read
+the RFC5424 standard and discuss in issues your thoughts on logging standards.
 
 [docs]: https://godoc.org/github.com/JustAnotherOrganization/l5424
 [docs_badge]: https://godoc.org/github.com/JustAnotherOrganization/l5424?status.svg
