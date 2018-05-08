@@ -80,6 +80,8 @@ const (
 	InfoLvl
 	// DebugLvl debug-level messages
 	DebugLvl
+	// Disabled disables logging
+	Disabled SeverityLvl = 1000
 )
 
 type (

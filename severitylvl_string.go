@@ -4,13 +4,22 @@ package l5424
 
 import "strconv"
 
-const _SeverityLvl_name = "EmergencyLvlAlertLvlCritLvlErrorLvlWarnLvlNoticeLvlInfoLvlDebugLvl"
+const (
+	_SeverityLvl_name_0 = "EmergencyLvlAlertLvlCritLvlErrorLvlWarnLvlNoticeLvlInfoLvlDebugLvl"
+	_SeverityLvl_name_1 = "Disabled"
+)
 
-var _SeverityLvl_index = [...]uint8{0, 12, 20, 27, 35, 42, 51, 58, 66}
+var (
+	_SeverityLvl_index_0 = [...]uint8{0, 12, 20, 27, 35, 42, 51, 58, 66}
+)
 
 func (i SeverityLvl) String() string {
-	if i >= SeverityLvl(len(_SeverityLvl_index)-1) {
+	switch {
+	case 0 <= i && i <= 7:
+		return _SeverityLvl_name_0[_SeverityLvl_index_0[i]:_SeverityLvl_index_0[i+1]]
+	case i == 1000:
+		return _SeverityLvl_name_1
+	default:
 		return "SeverityLvl(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _SeverityLvl_name[_SeverityLvl_index[i]:_SeverityLvl_index[i+1]]
 }
