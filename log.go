@@ -1,4 +1,5 @@
 package l5424 // import "github.com/JustAnotherOrganization/l5424"
+
 import "io"
 
 type (
