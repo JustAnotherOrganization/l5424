@@ -27,9 +27,8 @@ var (
 type (
 	// Logger implements an l5424 logger.
 	Logger struct {
-		out  io.Writer
-		err  io.Writer
-		cout io.Writer
+		out io.Writer
+		err io.Writer
 
 		severity l5424.SeverityLvl
 	}
@@ -42,36 +41,27 @@ func New() *Logger {
 		err:      os.Stderr,
 		severity: l5424.NoticeLvl,
 	}
-	go l.setCombinedOut()
 	return &l
-}
-
-func (l *Logger) setCombinedOut() {
-	l.cout = io.MultiWriter(l.out, l.err)
 }
 
 // SetOut sets the out writer for the Logger (default os.Stdout).
 func (l *Logger) SetOut(w io.Writer) {
 	l.out = w
-	go l.setCombinedOut()
 }
 
 // AddWriterToOut adds a writer to the out multiwriter for the Logger.
 func (l *Logger) AddWriterToOut(w io.Writer) {
 	l.out = io.MultiWriter(l.out, w)
-	go l.setCombinedOut()
 }
 
 // SetErr sets the err writer for the Logger (default os.Stderr).
 func (l *Logger) SetErr(w io.Writer) {
 	l.err = w
-	go l.setCombinedOut()
 }
 
 // AddWriterToErr adds a writer to the err multiwriter for the Logger.
 func (l *Logger) AddWriterToErr(w io.Writer) {
 	l.err = io.MultiWriter(l.err, w)
-	go l.setCombinedOut()
 }
 
 // SetLevel sets the logger severity level.
@@ -100,17 +90,17 @@ func (l *Logger) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...
 
 // Emergency writes an emergency value to the logger.
 func (l *Logger) Emergency(v ...interface{}) {
-	l.Print(l.cout, l5424.EmergencyLvl, v...)
+	l.Print(l.err, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyln writes an emergency value to the logger followed by a new line.
 func (l *Logger) Emergencyln(v ...interface{}) {
-	l.Println(l.cout, l5424.EmergencyLvl, v...)
+	l.Println(l.err, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyf writes an emergency value to the logger using the provided format string.
 func (l *Logger) Emergencyf(format string, v ...interface{}) {
-	l.Printf(l.cout, l5424.EmergencyLvl, format, v...)
+	l.Printf(l.err, l5424.EmergencyLvl, format, v...)
 }
 
 // Alert writes an alert value to the logger.

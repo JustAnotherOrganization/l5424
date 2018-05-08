@@ -53,17 +53,17 @@ func (e *Entry) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...i
 
 // Emergency writes an emergency value to the logger.
 func (e *Entry) Emergency(v ...interface{}) {
-	e.Print(e.l.cout, l5424.EmergencyLvl, v...)
+	e.Print(e.l.err, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyln writes an emergency value to the logger followed by a new line.
 func (e *Entry) Emergencyln(v ...interface{}) {
-	e.Println(e.l.cout, l5424.EmergencyLvl, v...)
+	e.Println(e.l.err, l5424.EmergencyLvl, v...)
 }
 
 // Emergencyf writes an emergency value to the logger using the provided format string.
 func (e *Entry) Emergencyf(format string, v ...interface{}) {
-	e.Printf(e.l.cout, l5424.EmergencyLvl, format, v...)
+	e.Printf(e.l.err, l5424.EmergencyLvl, format, v...)
 }
 
 // Alert writes an alert value to the logger.
