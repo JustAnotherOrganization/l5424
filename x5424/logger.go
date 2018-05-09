@@ -1,253 +1,182 @@
 package x5424
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/JustAnotherOrganization/l5424"
 )
 
-// Static type checking.
-var (
-	_ l5424.Log    = &Logger{}
-	_ l5424.MinLog = &Logger{}
-)
-
-const (
-	// DefaultFormat is the default logger format.
-	DefaultFormat = `%s : %s`
-)
-
-var (
-	// TODO: allow for overriding the default formats.
-	logFormat = DefaultFormat
-)
-
+// Logger implements the l5424.Logger (an implementation of the proposed standardized logger).
 type (
-	// Logger implements an l5424 logger.
 	Logger struct {
-		out io.Writer
-		err io.Writer
+		w   io.Writer
+		lvl l5424.SeverityLvl
+	}
 
-		severity l5424.SeverityLvl
+	checkNext struct {
+		label string
+		prev  interface{}
+		f     func(v interface{}) (uint, bool)
 	}
 )
 
-// New returns a new Logger with a default severity level of l5424.NoticeLvl.
-func New() *Logger {
+// New returns a new Logger, level is a l5424 severity level string (unrecognized severity strings result
+// in a level of l5424.NoticeLvl). If w is nil os.Stdout is assumed.
+func New(level string, w io.Writer) *Logger {
 	l := Logger{
-		out:      os.Stdout,
-		err:      os.Stderr,
-		severity: l5424.NoticeLvl,
+		lvl: l5424.NoticeLvl,
+		w:   os.Stdout,
 	}
+
+	if lvl, err := l5424.SeverityLvlString(level); err == nil {
+		l.lvl = lvl
+	}
+
+	if w != nil {
+		l.w = w
+	}
+
 	return &l
 }
 
-// SetOut sets the out writer for the Logger (default os.Stdout).
-func (l *Logger) SetOut(w io.Writer) {
-	l.out = w
+const (
+	// Severity can be passed as a key for a severity level. The accompanied severity level
+	// must be a string or a pointer assosciated with a SeverityLvl enum found in l5424.
+	Severity = "severity"
+	// Facility can be passed as a key for a facility level. The accompanied facility level
+	// must be a string or a pointer assosciated with a FacilityLvl enum found in l5424.
+	Facility = "facility"
+)
+
+// Log is a flexible log method described in the standarized logger proposals.
+// v can be key-pairs of alternating key, value (limited to recognized key, currently;
+// all other data is appended to the end of the log entry in order).
+func (l *Logger) Log(v ...interface{}) error {
+	if len(v) == 0 {
+		return errors.New("log value cannot be nil")
+	}
+
+	// TODO: offer alternate behavior that assumes all data is key/value
+
+	var (
+		next                     *checkNext
+		facilitySet, severitySet bool
+		m                        = make(map[string]uint)
+		final                    []interface{}
+	)
+
+	for i, _v := range v {
+		// Don't bother looking through all the keys if all recognized keys
+		// have already been found.
+		if facilitySet && severitySet {
+			final = append(final, v[i:]...)
+			break
+		}
+
+		if next != nil {
+			if u, ok := next.f(_v); ok {
+				// This should not happen...
+				if next.label != Severity && next.label != Facility {
+					final = append(final, next.prev, _v)
+				} else {
+					if next.label == Severity {
+						// The severity level for this message is higher than the log level, do nothing.
+						if l.lvl < l5424.SeverityLvl(u) {
+							return nil
+						}
+
+						severitySet = true
+					}
+					if next.label == Facility {
+						facilitySet = true
+					}
+
+					m[next.label] = u
+				}
+			}
+
+			next = nil
+			continue
+		}
+
+		switch _v.(type) {
+		case string:
+			switch _v.(string) {
+			case Severity:
+				next = &checkNext{
+					label: Severity,
+					prev:  v,
+					f:     checkSeverity,
+				}
+			case Facility:
+				next = &checkNext{
+					label: Facility,
+					prev:  v,
+					f:     checkFacility,
+				}
+			default:
+				final = append(final, _v)
+			}
+		}
+	}
+
+	if next != nil {
+		final = append(final, next.prev)
+		next = nil // Kind of not needed now lol.
+	}
+
+	return l.log(m, final...)
 }
 
-// AddWriterToOut adds a writer to the out multiwriter for the Logger.
-func (l *Logger) AddWriterToOut(w io.Writer) {
-	l.out = io.MultiWriter(l.out, w)
+func (l *Logger) log(m map[string]uint, v ...interface{}) error {
+	var format []string
+	if facility, ok := m[Facility]; ok {
+		format = append(format, l5424.FacilityLvl(facility).String())
+	}
+	if severity, ok := m[Severity]; ok {
+		format = append(format, l5424.SeverityLvl(severity).String())
+	}
+
+	// TODO: allow for some other format delimeters?
+	// json formatting as an option?
+	return l._log(strings.Join(format, " - "), v...)
 }
 
-// SetErr sets the err writer for the Logger (default os.Stderr).
-func (l *Logger) SetErr(w io.Writer) {
-	l.err = w
+func (l *Logger) _log(format string, v ...interface{}) error {
+	_, err := fmt.Fprint(l.w, fmt.Sprintf("%s: %s", format, fmt.Sprint(v...)))
+	return err
 }
 
-// AddWriterToErr adds a writer to the err multiwriter for the Logger.
-func (l *Logger) AddWriterToErr(w io.Writer) {
-	l.err = io.MultiWriter(l.err, w)
-}
-
-// SetLevel sets the logger severity level.
-func (l *Logger) SetLevel(lvl l5424.SeverityLvl) {
-	l.severity = lvl
-}
-
-func (l *Logger) write(w io.Writer, lvl l5424.SeverityLvl, v string) {
-	if lvl < l5424.Disabled {
-		fmt.Fprint(w, v)
+func checkSeverity(v interface{}) (uint, bool) {
+	switch v.(type) {
+	case string:
+		lvl, err := l5424.SeverityLvlString(v.(string))
+		if err == nil {
+			return uint(lvl), true
+		}
+		return uint(lvl), true
+	case l5424.SeverityLvl:
+		return uint(v.(l5424.SeverityLvl)), true
+	default:
+		return 0, false
 	}
 }
 
-// Print writes to the logger using the provided severity level.
-func (l *Logger) Print(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	l.write(w, lvl, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...)))
-}
-
-// Println writes to the logger using the provided severity level, followed by a new line.
-func (l *Logger) Println(w io.Writer, lvl l5424.SeverityLvl, v ...interface{}) {
-	l.write(w, lvl, fmt.Sprintln(fmt.Sprintf(logFormat, lvl.String(), fmt.Sprint(v...))))
-}
-
-// Printf writes to the logger using the provided severity level and format.
-func (l *Logger) Printf(w io.Writer, lvl l5424.SeverityLvl, format string, v ...interface{}) {
-	l.write(w, lvl, fmt.Sprintf(logFormat, lvl.String(), fmt.Sprintf(format, v...)))
-}
-
-// Emergency writes an emergency value to the logger.
-func (l *Logger) Emergency(v ...interface{}) {
-	l.Print(l.err, l5424.EmergencyLvl, v...)
-}
-
-// Emergencyln writes an emergency value to the logger followed by a new line.
-func (l *Logger) Emergencyln(v ...interface{}) {
-	l.Println(l.err, l5424.EmergencyLvl, v...)
-}
-
-// Emergencyf writes an emergency value to the logger using the provided format string.
-func (l *Logger) Emergencyf(format string, v ...interface{}) {
-	l.Printf(l.err, l5424.EmergencyLvl, format, v...)
-}
-
-// Alert writes an alert value to the logger.
-func (l *Logger) Alert(v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.Print(l.err, l5424.AlertLvl, v...)
-	}
-}
-
-// Alertln writes an alert value to the logger followed by a new line.
-func (l *Logger) Alertln(v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.Println(l.err, l5424.AlertLvl, v...)
-	}
-}
-
-// Alertf writes an alert value to the logger using the provided format string.
-func (l *Logger) Alertf(format string, v ...interface{}) {
-	if l.severity >= l5424.AlertLvl {
-		l.Printf(l.err, l5424.AlertLvl, format, v...)
-	}
-}
-
-// Critical writes a critical value to the logger.
-func (l *Logger) Critical(v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.Print(l.err, l5424.CritLvl, v...)
-	}
-}
-
-// Criticalln writes a critical value to the logger followed by a new line.
-func (l *Logger) Criticalln(v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.Println(l.err, l5424.CritLvl, v...)
-	}
-}
-
-// Criticalf write a critical value to the logger using the provided format string.
-func (l *Logger) Criticalf(format string, v ...interface{}) {
-	if l.severity >= l5424.CritLvl {
-		l.Printf(l.err, l5424.CritLvl, format, v...)
-	}
-}
-
-// Error writes an error value to the logger.
-func (l *Logger) Error(v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.Print(l.err, l5424.ErrorLvl, v...)
-	}
-}
-
-// Errorln writes an error value to the logger follower by a new line.
-func (l *Logger) Errorln(v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.Println(l.err, l5424.ErrorLvl, v...)
-	}
-}
-
-// Errorf writes an error value to the logger using the provided format string.
-func (l *Logger) Errorf(format string, v ...interface{}) {
-	if l.severity >= l5424.ErrorLvl {
-		l.Printf(l.err, l5424.ErrorLvl, format, v...)
-	}
-}
-
-// Warn writes a warning value to the logger.
-func (l *Logger) Warn(v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.Print(l.err, l5424.WarnLvl, v...)
-	}
-}
-
-// Warnln writes a warning value to the logger followed by a new line.
-func (l *Logger) Warnln(v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.Println(l.err, l5424.WarnLvl, v...)
-	}
-}
-
-// Warnf writes a warning value to the logger using the provided format string.
-func (l *Logger) Warnf(format string, v ...interface{}) {
-	if l.severity >= l5424.WarnLvl {
-		l.Printf(l.err, l5424.WarnLvl, format, v...)
-	}
-}
-
-// Notice writes a notice value to the logger.
-func (l *Logger) Notice(v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.Print(l.out, l5424.NoticeLvl, v...)
-	}
-}
-
-// Noticeln writes a notice value to the logger followed by a new line.
-func (l *Logger) Noticeln(v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.Println(l.out, l5424.NoticeLvl, v...)
-	}
-}
-
-// Noticef writes a notice value to the logger using the provided format string.
-func (l *Logger) Noticef(format string, v ...interface{}) {
-	if l.severity >= l5424.NoticeLvl {
-		l.Printf(l.out, l5424.NoticeLvl, format, v...)
-	}
-}
-
-// Info writes an info value to the logger.
-func (l *Logger) Info(v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.Print(l.out, l5424.InfoLvl, v...)
-	}
-}
-
-// Infoln writes an info value to the logger followed by a new line.
-func (l *Logger) Infoln(v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.Println(l.out, l5424.InfoLvl, v...)
-	}
-}
-
-// Infof writes an info value to the logger using the provided format string.
-func (l *Logger) Infof(format string, v ...interface{}) {
-	if l.severity >= l5424.InfoLvl {
-		l.Printf(l.out, l5424.InfoLvl, format, v...)
-	}
-}
-
-// Debug writes a debug value to the logger.
-func (l *Logger) Debug(v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.Print(l.out, l5424.DebugLvl, v...)
-	}
-}
-
-// Debugln writes a debug value to the logger followed by a new line.
-func (l *Logger) Debugln(v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.Println(l.out, l5424.DebugLvl, v...)
-	}
-}
-
-// Debugf writes a debug value to the logger using the provided format string.
-func (l *Logger) Debugf(format string, v ...interface{}) {
-	if l.severity >= l5424.DebugLvl {
-		l.Printf(l.out, l5424.DebugLvl, format, v...)
+func checkFacility(v interface{}) (uint, bool) {
+	switch v.(type) {
+	case string:
+		lvl, err := l5424.FacilityLvlString(v.(string))
+		if err == nil {
+			return uint(lvl), true
+		}
+		return uint(lvl), true
+	case l5424.FacilityLvl:
+		return uint(v.(l5424.FacilityLvl)), true
+	default:
+		return 0, false
 	}
 }

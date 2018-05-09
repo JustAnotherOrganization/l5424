@@ -1,6 +1,13 @@
 package l5424 // import "github.com/JustAnotherOrganization/l5424"
 
-import "io"
+type (
+	// Logger is based on the standard logger proposals discussed in detail, linked below
+	// https://docs.google.com/document/d/1oTjtY49y8iSxmM9YBaz2NrZIlaXtQsq3nQMd-E0HtwM/edit#
+	Logger interface {
+		// Log is a flexible log function described in the standard logger proposals.
+		Log(...interface{}) error
+	}
+)
 
 type (
 	// FacilityLvl values are not normative however are defined in the RFC. They are provided for convenience.
@@ -81,76 +88,4 @@ const (
 	InfoLvl
 	// DebugLvl debug-level messages
 	DebugLvl
-	// Disabled disables logging
-	Disabled SeverityLvl = 1000
-)
-
-type (
-	// Log is a RFC5424 log interface.
-	Log interface {
-		// Emergency writes an emergency value to the logger.
-		Emergency(v ...interface{})
-		// Emergencyln writes an emergency value to the logger followed by a new line.
-		Emergencyln(v ...interface{})
-		// Emergencyf writes an emergency value to the logger using the provided format string.
-		Emergencyf(format string, v ...interface{})
-		// Alert writes an alert value to the logger.
-		Alert(v ...interface{})
-		// Alertln writes an alert value to the logger followed by a new line.
-		Alertln(v ...interface{})
-		// Alertf writes an alert value to the logger using the provided format string.
-		Alertf(format string, v ...interface{})
-		// Critical writes a critical value to the logger.
-		Critical(v ...interface{})
-		// Criticalln writes a critical value to the logger followed by a new line.
-		Criticalln(v ...interface{})
-		// Criticalf write a critical value to the logger using the provided format string.
-		Criticalf(format string, v ...interface{})
-		// Error writes an error value to the logger.
-		Error(v ...interface{})
-		// Errorln writes an error value to the logger follower by a new line.
-		Errorln(v ...interface{})
-		// Errorf writes an error value to the logger using the provided format string.
-		Errorf(format string, v ...interface{})
-		// Warn writes a warning value to the logger.
-		Warn(v ...interface{})
-		// Warnln writes a warning value to the logger followed by a new line.
-		Warnln(v ...interface{})
-		// Warnf writes a warning value to the logger using the provided format string.
-		Warnf(format string, v ...interface{})
-		// Notice writes a notice value to the logger.
-		Notice(v ...interface{})
-		// Noticeln writes a notice value to the logger followed by a new line.
-		Noticeln(v ...interface{})
-		// Noticef writes a notice value to the logger using the provided format string.
-		Noticef(format string, v ...interface{})
-		// Info writes an info value to the logger.
-		Info(v ...interface{})
-		// Infoln writes an info value to the logger followed by a new line.
-		Infoln(v ...interface{})
-		// Infof writes an info value to the logger using the provided format string.
-		Infof(format string, v ...interface{})
-		// Debug writes a debug value to the logger.
-		Debug(v ...interface{})
-		// Debugln writes a debug value to the logger followed by a new line.
-		Debugln(v ...interface{})
-		// Debugf writes a debug value to the logger using the provided format string.
-		Debugf(format string, v ...interface{})
-		// Print writes to the logger using the provided severity level on the provided writer.
-		Print(w io.Writer, lvl SeverityLvl, v ...interface{})
-		// Println writes to the logger using the provided severity level, followed by a new line on the provided writer.
-		Println(w io.Writer, lvl SeverityLvl, v ...interface{})
-		// Printf writes to the logger using the provided severity level and format on the provided writer.
-		Printf(w io.Writer, lvl SeverityLvl, format string, v ...interface{})
-	}
-
-	// MinLog is a minimal RFC5424 log interface.
-	MinLog interface {
-		// Print writes to the logger using the provided severity level on the provided writer.
-		Print(w io.Writer, lvl SeverityLvl, v ...interface{})
-		// Println writes to the logger using the provided severity level, followed by a new line on the provided writer.
-		Println(w io.Writer, lvl SeverityLvl, v ...interface{})
-		// Printf writes to the logger using the provided severity level and format on the provided writer.
-		Printf(w io.Writer, lvl SeverityLvl, format string, v ...interface{})
-	}
 )
