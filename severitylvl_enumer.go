@@ -6,39 +6,28 @@ import (
 	"fmt"
 )
 
-const (
-	_SeverityLvlName_0 = "EmergencyLvlAlertLvlCritLvlErrorLvlWarnLvlNoticeLvlInfoLvlDebugLvl"
-	_SeverityLvlName_1 = "Disabled"
-)
+const _SeverityLvlName = "EmergencyLvlAlertLvlCritLvlErrorLvlWarnLvlNoticeLvlInfoLvlDebugLvl"
 
-var (
-	_SeverityLvlIndex_0 = [...]uint8{0, 12, 20, 27, 35, 42, 51, 58, 66}
-	_SeverityLvlIndex_1 = [...]uint8{0, 8}
-)
+var _SeverityLvlIndex = [...]uint8{0, 12, 20, 27, 35, 42, 51, 58, 66}
 
 func (i SeverityLvl) String() string {
-	switch {
-	case 0 <= i && i <= 7:
-		return _SeverityLvlName_0[_SeverityLvlIndex_0[i]:_SeverityLvlIndex_0[i+1]]
-	case i == 1000:
-		return _SeverityLvlName_1
-	default:
+	if i >= SeverityLvl(len(_SeverityLvlIndex)-1) {
 		return fmt.Sprintf("SeverityLvl(%d)", i)
 	}
+	return _SeverityLvlName[_SeverityLvlIndex[i]:_SeverityLvlIndex[i+1]]
 }
 
-var _SeverityLvlValues = []SeverityLvl{0, 1, 2, 3, 4, 5, 6, 7, 1000}
+var _SeverityLvlValues = []SeverityLvl{0, 1, 2, 3, 4, 5, 6, 7}
 
 var _SeverityLvlNameToValueMap = map[string]SeverityLvl{
-	_SeverityLvlName_0[0:12]:  0,
-	_SeverityLvlName_0[12:20]: 1,
-	_SeverityLvlName_0[20:27]: 2,
-	_SeverityLvlName_0[27:35]: 3,
-	_SeverityLvlName_0[35:42]: 4,
-	_SeverityLvlName_0[42:51]: 5,
-	_SeverityLvlName_0[51:58]: 6,
-	_SeverityLvlName_0[58:66]: 7,
-	_SeverityLvlName_1[0:8]:   1000,
+	_SeverityLvlName[0:12]:  0,
+	_SeverityLvlName[12:20]: 1,
+	_SeverityLvlName[20:27]: 2,
+	_SeverityLvlName[27:35]: 3,
+	_SeverityLvlName[35:42]: 4,
+	_SeverityLvlName[42:51]: 5,
+	_SeverityLvlName[51:58]: 6,
+	_SeverityLvlName[58:66]: 7,
 }
 
 // SeverityLvlString retrieves an enum value from the enum constants string name.
