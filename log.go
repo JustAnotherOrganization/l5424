@@ -7,6 +7,9 @@ type (
 		// Log is a flexible log function described in the standard logger proposals.
 		Log(...interface{}) error
 	}
+
+	// NoOpLogger implements Logger, it can be passed as a simple way to disable logging.
+	NoOpLogger struct{}
 )
 
 type (
@@ -89,3 +92,11 @@ const (
 	// DebugLvl debug-level messages
 	DebugLvl
 )
+
+// Static type checking.
+var _ Logger = &NoOpLogger{}
+
+// Log returns nil without performing any operations.
+func (l *NoOpLogger) Log(v ...interface{}) error {
+	return nil
+}
