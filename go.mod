@@ -1,1 +1,1 @@
-module github.com/JustAnotherOrganization/l5424
+module github.com/justanotherorganization/l5424
