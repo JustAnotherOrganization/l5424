@@ -1,8 +1,6 @@
 # l5424
 
-[![GoDoc][docs_badge]][docs]
-
-[![Go Report Card][report_card_badge]][report_card]
+[![GoDoc][docs_badge]][docs] [![Go Report Card][report_card_badge]][report_card]
 
 ---
 
