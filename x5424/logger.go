@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/JustAnotherOrganization/l5424"
+	"github.com/justanotherorganization/l5424"
 )
 
 // Logger implements the l5424.Logger (an implementation of the proposed standardized logger).

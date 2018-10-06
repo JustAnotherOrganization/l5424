@@ -1,4 +1,4 @@
-package l5424 // import "github.com/JustAnotherOrganization/l5424"
+package l5424 // import "github.com/justanotherorganization/l5424"
 
 type (
 	// Logger is based on the standard logger proposals discussed in detail, linked below
