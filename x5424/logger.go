@@ -8,13 +8,15 @@ import (
 	"strings"
 
 	"github.com/JustAnotherOrganization/l5424"
+	"github.com/fatih/color"
 )
 
 // Logger implements the l5424.Logger (an implementation of the proposed standardized logger).
 type (
 	Logger struct {
-		w   io.Writer
-		lvl l5424.SeverityLvl
+		w     io.Writer
+		lvl   l5424.SeverityLvl
+		color bool
 	}
 
 	checkNext struct {
@@ -26,10 +28,11 @@ type (
 
 // New returns a new Logger, level is a l5424 severity level string (unrecognized severity strings result
 // in a level of l5424.NoticeLvl). If w is nil os.Stdout is assumed.
-func New(level string, w io.Writer) *Logger {
+func New(level string, w io.Writer, color bool) *Logger {
 	l := Logger{
-		lvl: l5424.NoticeLvl,
-		w:   os.Stdout,
+		lvl:   l5424.NoticeLvl,
+		w:     os.Stdout,
+		color: color,
 	}
 
 	if lvl, err := l5424.SeverityLvlString(level); err == nil {
@@ -134,20 +137,43 @@ func (l *Logger) Log(v ...interface{}) error {
 
 func (l *Logger) log(m map[string]uint, v ...interface{}) error {
 	var format []string
+	var colorOut *color.Color
+
 	if facility, ok := m[Facility]; ok {
 		format = append(format, l5424.FacilityLvl(facility).String())
+		if l.color {
+			switch l5424.FacilityLvl(facility).String() {
+			case "FacilityAlert":
+				colorOut = color.New(color.FgRed, color.Bold)
+			}
+		}
 	}
 	if severity, ok := m[Severity]; ok {
 		format = append(format, l5424.SeverityLvl(severity).String())
+		if l.color {
+			switch l5424.SeverityLvl(severity).String() {
+			case "EmergencyLvl", "AlertLvl", "CritLvl":
+				colorOut = color.New(color.FgRed, color.Bold)
+			case "ErrorLvl":
+				colorOut = color.New(color.FgRed)
+			case "WarnLvl":
+				colorOut = color.New(color.FgYellow)
+			}
+		}
 	}
 
 	// TODO: allow for some other format delimeters?
 	// json formatting as an option?
-	return l._log(strings.Join(format, " - "), v...)
+	return l._log(colorOut, strings.Join(format, " - "), v...)
 }
 
-func (l *Logger) _log(format string, v ...interface{}) error {
-	_, err := fmt.Fprint(l.w, fmt.Sprintf("%s: %s", format, fmt.Sprint(v...)))
+func (l *Logger) _log(color *color.Color, format string, v ...interface{}) error {
+	var err error
+	if color == nil {
+		_, err = fmt.Fprint(l.w, fmt.Sprintf("%s: %s", format, fmt.Sprint(v...)))
+	} else {
+		_, err = color.Fprint(l.w, fmt.Sprintf("%s: %s", format, fmt.Sprint(v...)))
+	}
 	return err
 }
 
