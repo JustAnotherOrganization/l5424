@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/JustAnotherOrganization/l5424"
-	"github.com/JustAnotherOrganization/l5424/x5424"
+	"github.com/justanotherorganization/l5424"
+	"github.com/justanotherorganization/l5424/x5424"
 )
 
 func main() {

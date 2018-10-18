@@ -1,3 +1,3 @@
-module github.com/JustAnotherOrganization/l5424/x5424
+module github.com/justanotherorganization/l5424/x5424
 
-require github.com/JustAnotherOrganization/l5424 v1.0.2
+require github.com/justanotherorganization/l5424 v1.1.0
