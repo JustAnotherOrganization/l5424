@@ -4,7 +4,7 @@
 
 ---
 
-l5424 is a collection of RFC5424 compliant logging interfaces and loggers.
+l5424 is a collection of logging interfaces and loggers.
 
 The point of this repo is to show several possible ways of implementing RFC5424 compliant loggers.
 
@@ -26,7 +26,7 @@ Only one interface is provided and that is the one described in the above mentio
 ---
 
 If you're reading this you are encouraged to play with the interface and loggers as well as read
-the above proposals and the existing RFC5424 standard.
+the above proposals.
 
 [docs]: https://godoc.org/github.com/justanotherorganization/l5424
 [docs_badge]: https://godoc.org/github.com/justanotherorganization/l5424?status.svg
